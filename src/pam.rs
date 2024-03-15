@@ -141,15 +141,15 @@ unsafe fn encode_into<const N: usize>(
     o.put(*b"TUPLTYPE ");
     o.put(*tupltype);
     o.put(*b"\nENDHDR\n");
-    for &x in buf {
-        if &tupltype[..] == b"BLACKANDWHITE" {
+    if tupltype[..] == *b"BLACKANDWHITE" {
+        for &x in buf {
             o.push(x ^ 1)
-        } else {
-            o.push(x)
         }
+        o.sub_ptr(out)
+    } else {
+        o.copy_from(buf.as_ptr(), buf.len());
+        o.sub_ptr(out) + buf.len()
     }
-
-    o.sub_ptr(out)
 }
 
 #[derive(Copy, Clone, Debug)]

@@ -131,11 +131,8 @@ pub mod raw {
         o.push(b' ');
         encodeu32(x.height(), &mut o);
         o.put(*b" 255\n");
-        for &x in *x.buffer() {
-            o.push(x)
-        }
-
-        o.sub_ptr(out)
+        o.copy_from(x.buffer().as_ptr(), x.len());
+        o.sub_ptr(out) + x.len()
     }
 
     #[doc = include_str!("decode_body_into.md")]
