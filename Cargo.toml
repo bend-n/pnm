@@ -1,0 +1,18 @@
+[package]
+name = "pnm"
+version = "0.1.0"
+edition = "2021"
+description = "portable anymap format encoding and decoding"
+authors = ["bend-n <bend.n@outlook.com>"]
+license = "MIT"
+repository = "https://github.com/bend-n/pnm"
+exclude = ["tdata", ".gitignore"]
+keywords = ["image", "format", "encoding", "decoding"]
+categories = ["multimedia::images", "graphics", "encoding"]
+
+[dependencies]
+atools = "0.1.1"
+fimg = { version = "0.4.41", default-features = false }
+
+[dev-dependencies]
+fimg = { version = "0.4.41", features = ["save"], default-features = false }
