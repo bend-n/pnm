@@ -6,7 +6,7 @@ description = "portable anymap format encoding and decoding"
 authors = ["bend-n <bend.n@outlook.com>"]
 license = "MIT"
 repository = "https://github.com/bend-n/pnm"
-exclude = ["tdata", ".gitignore"]
+exclude = ["tdata", ".gitignore", "examples"]
 keywords = ["image", "format", "encoding", "decoding"]
 categories = ["multimedia::images", "graphics", "encoding"]
 
