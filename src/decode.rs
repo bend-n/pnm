@@ -86,6 +86,7 @@ macro_rules! dec_fn {
 pub(crate) use dec_fn;
 
 /// Header for the older PNM formats. Not applicable to PAM.
+#[derive(Debug, Clone, Copy)]
 pub struct Header {
     /// Magic number.
     pub magic: u8,
@@ -135,6 +136,7 @@ impl std::fmt::Display for Error {
         }
     }
 }
+impl std::error::Error for Error {}
 
 /// Decodes the magic number.
 pub fn magic(x: &mut &[u8]) -> Option<u8> {

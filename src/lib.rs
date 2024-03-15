@@ -1,13 +1,26 @@
 //! crate for decoding/encoding the portable anymap format.
+//!
+//! ### a quick guide to the various functions for everyday use
+//!
+//! - [`decode()`]: your go-to for all PNM image decoding.
+//! If you have a specific format you need to support, use its module directly.
+//! Note that this function reads both plain and raw formats.
+//! - [`encode()`]: this function is a little tricky.
+//! It supports the "older" PNM formats, and, due to their age they do not support the alpha channels existence.
+//! If possible, use [`pam::encode`] instead.
+//! - [`encode_plain`]: The `PAM` format doesnt actually support read-age-by-humans, so this is still useful at times.
+//! Outputs data in decimal digits.
+//!
+//! ### functions in action
+//!
+//! ```
+//! let data = include_bytes!("../tdata/fimg-rainbowR.ppm");
+//! let out = pnm::decode(data).unwrap();
+//!
+//! assert_eq!(pnm::encode(out), data);
+//! ```
 #![allow(incomplete_features)]
-#![feature(
-    test,
-    generic_const_exprs,
-    ptr_sub_ptr,
-    array_chunks,
-    let_chains,
-    iter_array_chunks
-)]
+#![feature(ptr_sub_ptr, let_chains, iter_array_chunks)]
 #![warn(
     clippy::missing_const_for_fn,
     clippy::suboptimal_flops,
@@ -55,10 +68,21 @@ pub fn decode(x: &impl AsRef<[u8]>) -> decode::Result<DynImage<Vec<u8>>> {
 /// Encodes an image to one of the [`pgm`] or [`ppm`] portable anymap formats.
 ///
 /// Please note that this will not produce a [`pam`], use [`PAM`] for that.
+pub fn encode(x: impl Encode) -> Vec<u8> {
+    x.encode()
+}
+
+/// Encodes an image to one of the [`pgm`] or [`ppm`] portable anymap formats.
+///
+/// Please note that this will not produce a [`pam`], use [`PAM`] for that.
+/// ASCII EDITION!
+pub fn encode_plain(x: impl Encode) -> String {
+    x.encode_plain()
+}
+
+#[doc(hidden)]
 pub trait Encode {
-    /// Encodes an image to one of the [`pgm`] or [`ppm`] portable anymap formats.
     fn encode(self) -> Vec<u8>;
-    /// ASCII EDITION.
     fn encode_plain(self) -> String;
 }
 
@@ -88,3 +112,23 @@ x![pgm];
 x![t pgm, 2];
 x![ppm];
 x![t ppm, 4];
+
+macro_rules! e {
+    ($dyn:expr, |$image: pat_param| $do:expr) => {
+        match $dyn {
+            DynImage::Y($image) => $do,
+            DynImage::Ya($image) => $do,
+            DynImage::Rgb($image) => $do,
+            DynImage::Rgba($image) => $do,
+        }
+    };
+}
+use e;
+impl<T: AsRef<[u8]>> Encode for DynImage<T> {
+    fn encode(self) -> Vec<u8> {
+        e!(self, |x| encode(x))
+    }
+    fn encode_plain(self) -> String {
+        e!(self, |x| encode_plain(x))
+    }
+}

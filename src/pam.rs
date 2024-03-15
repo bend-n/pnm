@@ -10,8 +10,20 @@ use fimg::{DynImage, Image};
 
 pub const MAGIC: u8 = 7;
 
-/// Encode an <code>[Image]<[u8], N></code> to [PAM](https://en.wikipedia.org/wiki/Netpbm#PAM_graphics_format) Raw (binary) Image.
-/// And decode.
+/// Encode this <code>[Image]<[u8], N></code> to a [PAM](https://en.wikipedia.org/wiki/Netpbm#PAM_graphics_format) Raw (binary) Image.
+///
+/// ```
+/// # use pnm::pam;
+/// # use fimg::Image;
+/// let out = pam::encode(
+///   Image::<_, 1>::build(20, 15).buf(&include_bytes!("../tdata/fimg-gray.imgbuf")[..])
+/// );
+/// ```
+pub fn encode(x: impl PAM) -> Vec<u8> {
+    x.encode()
+}
+
+#[doc(hidden)]
 pub trait PAM {
     /// Encode this image to pam.
     fn encode(self) -> Vec<u8>;
@@ -97,6 +109,16 @@ impl<T: AsRef<[u8]>> PAM for Image<T, 4> {
 
     unsafe fn encode_into(x: Self, out: *mut u8) -> usize {
         encode_into((x.bytes(), (x.width(), x.height())), out, b"RGB_ALPHA", 2)
+    }
+}
+
+impl<T: AsRef<[u8]>> PAM for DynImage<T> {
+    fn encode(self) -> Vec<u8> {
+        super::e!(self, |x| encode(x))
+    }
+
+    unsafe fn encode_into(x: Self, out: *mut u8) -> usize {
+        super::e!(x, |x| PAM::encode_into(x, out))
     }
 }
 

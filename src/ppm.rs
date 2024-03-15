@@ -91,14 +91,14 @@ pub mod plain {
     fn test_encode() {
         assert_eq!(
             encode(Image::build(20, 15).buf(tdata())),
-            include_str!("../tdata/fimgA.ppm")
+            include_str!("../tdata/fimg-rainbowA.ppm")
         );
     }
 
     #[test]
     fn test_decode() {
         assert_eq!(
-            &**decode(include_bytes!("../tdata/fimgA.ppm"))
+            &**decode(include_bytes!("../tdata/fimg-rainbowA.ppm"))
                 .unwrap()
                 .buffer(),
             tdata()
@@ -163,7 +163,7 @@ pub mod raw {
     #[test]
     fn test_decode() {
         assert_eq!(
-            &**decode(include_bytes!("../tdata/fimgR.ppm"))
+            &**decode(include_bytes!("../tdata/fimg-rainbowR.ppm"))
                 .unwrap()
                 .buffer(),
             tdata()
@@ -174,7 +174,7 @@ pub mod raw {
     fn test_encode() {
         assert_eq!(
             encode(Image::build(20, 15).buf(tdata())),
-            include_bytes!("../tdata/fimgR.ppm")
+            include_bytes!("../tdata/fimg-rainbowR.ppm")
         );
     }
 }
