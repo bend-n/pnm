@@ -35,7 +35,6 @@ pub mod pam;
 pub mod pbm;
 pub mod pgm;
 pub mod ppm;
-pub use pam::PAM;
 
 /// Decode any [`pgm`], [`ppm`], [`pbm`], [`pam`] image.
 pub fn decode(x: &impl AsRef<[u8]>) -> decode::Result<DynImage<Vec<u8>>> {
