@@ -37,7 +37,7 @@ pub mod pgm;
 pub mod ppm;
 
 /// Decode any [`pgm`], [`ppm`], [`pbm`], [`pam`] image.
-pub fn decode(x: &impl AsRef<[u8]>) -> decode::Result<DynImage<Vec<u8>>> {
+pub fn decode(x: impl AsRef<[u8]>) -> decode::Result<DynImage<Vec<u8>>> {
     let mut x = x.as_ref();
     let magic = decode::magic(&mut x).ok_or(decode::Error::MissingMagic)?;
     match magic {
