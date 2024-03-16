@@ -23,18 +23,20 @@ pub fn encode(x: impl PAM) -> Vec<u8> {
     x.encode()
 }
 
+/// Encode this <code>[Image]<[bool], N></code> to a [PAM](https://en.wikipedia.org/wiki/Netpbm#PAM_graphics_format) Raw (binary) Image.
+pub fn encode_bitmap(x: impl PAMBit) -> Vec<u8> {
+    x.encode_bitmap()
+}
+
 #[doc(hidden)]
 pub trait PAM {
-    /// Encode this image to pam.
     fn encode(self) -> Vec<u8>;
     #[doc = include_str!("encode_into.md")]
     unsafe fn encode_into(x: Self, out: *mut u8) -> usize;
 }
 
-/// Bool images.
-/// Unstable api.
+#[doc(hidden)]
 pub trait PAMBit {
-    /// Encode this bit image to pam.
     fn encode_bitmap(self) -> Vec<u8>;
     #[doc = include_str!("encode_into.md")]
     unsafe fn encode_into(x: Self, out: *mut u8) -> usize;
@@ -193,7 +195,8 @@ impl Type {
 }
 
 /// Decode a PAM image into a [`DynImage`].
-pub fn decode(mut x: &[u8]) -> Result<DynImage<Vec<u8>>> {
+pub fn decode(x: impl AsRef<[u8]>) -> Result<DynImage<Vec<u8>>> {
+    let mut x = x.as_ref();
     crate::decode::magic(&mut x);
     decode_wo_magic(x)
 }
@@ -229,16 +232,19 @@ pub unsafe fn decode_inner(x: &[u8], mut into: *mut u8, header: PAMHeader) -> Re
     match header.tupltype {
         Type::Bit => x
             .iter()
-            .map(|&x| x * 0xff)
+            .map(|&x| x.saturating_mul(0xff))
             .take(n)
             .for_each(|x| into.push(x)),
         Type::BitA => x
             .iter()
             .array_chunks::<2>()
-            .take(n)
-            .map(|[&x, &a]| [x * 0xff, a])
+            .take(header.width.get() as usize * header.height.get() as usize)
+            .map(|[&x, &a]| [x.saturating_mul(0xff), a])
             .for_each(|x| into.put(x)),
         Type::Y | Type::YA | Type::RGB | Type::RGBA => {
+            if x.len() < n {
+                return Err(Error::MissingData);
+            }
             into.copy_from(x.as_ptr(), n);
         }
     }

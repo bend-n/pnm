@@ -179,10 +179,10 @@ pub mod raw {
             .collect::<Vec<_>>()
             .chunks_exact((into.width() + padding) as _)
             .map(|x| &x[..into.width() as _])
-            .take(pixels as _)
+            .take(into.height() as _)
             .flatten()
         {
-            // SAFETY: took `pixels` pixels.
+            // SAFETY: took `width` * `height` pixels.
             unsafe { out.push(x) };
         }
         if unsafe { out.sub_ptr(into.buf().as_mut_ptr().cast()) < pixels as usize } {
@@ -209,11 +209,11 @@ pub mod raw {
             .collect::<Vec<_>>()
             .chunks_exact((into.width() + padding) as _)
             .map(|x| &x[..into.width() as _])
-            .take(pixels as _)
+            .take(into.height() as _)
             .flatten()
             .map(|&x| x as u8 * 0xff)
         {
-            // SAFETY: took `pixels` pixels.
+            // SAFETY: took `height` * `width` pixels.
             unsafe { out.push(x) };
         }
         if unsafe { out.sub_ptr(into.buf().as_mut_ptr().cast()) < pixels as usize } {

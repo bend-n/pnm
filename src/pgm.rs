@@ -40,7 +40,10 @@ pub mod plain {
             .split(u8::is_ascii_whitespace)
             .filter(|x| !x.is_empty() && x.len() <= 3)
             .filter(|x| x.iter().all(u8::is_ascii_digit))
-            .map(|x| x.iter().fold(0, |acc, &x| acc * 10 + (x - b'0')))
+            .flat_map(|x| {
+                x.iter()
+                    .try_fold(0u8, |acc, &x| acc.checked_mul(10)?.checked_add(x - b'0'))
+            })
             .map(|x| {
                 if max == 255 {
                     x

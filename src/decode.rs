@@ -28,21 +28,42 @@ macro_rules! tenz {
     };
 }
 tenz!(u8);
-tenz!(u16);
 tenz!(u32);
-tenz!(u64);
-tenz!(u128);
-tenz!(i8);
-tenz!(i16);
-tenz!(i32);
-tenz!(i64);
-tenz!(i128);
+
+pub(crate) trait Ck
+where
+    Self: Sized,
+{
+    fn checked_mul(self, rhs: Self) -> Option<Self>;
+    fn checked_add(self, rhs: Self) -> Option<Self>;
+}
+
+macro_rules! cks {
+    ($for:ty) => {
+        impl Ck for $for {
+            fn checked_mul(self, rhs: Self) -> Option<Self> {
+                <$for>::checked_mul(self, rhs)
+            }
+            fn checked_add(self, rhs: Self) -> Option<Self> {
+                <$for>::checked_add(self, rhs)
+            }
+        }
+    };
+}
+cks!(u8);
+cks!(u32);
 
 /// Result alias with [`Error`].
 pub type Result<T> = std::result::Result<T, Error>;
 
 pub(crate) fn read_til<
-    T: Default + std::ops::Mul<T, Output = T> + std::ops::Add<T, Output = T> + From<u8> + Copy + Ten,
+    T: Default
+        + Ck
+        + std::ops::Mul<T, Output = T>
+        + std::ops::Add<T, Output = T>
+        + From<u8>
+        + Copy
+        + Ten,
 >(
     x: &mut &[u8],
 ) -> Result<T> {
@@ -54,7 +75,11 @@ pub(crate) fn read_til<
         if !x.is_ascii_digit() {
             return Err(Error::NotDigit(x as char));
         }
-        n = n * T::ten() + T::from(x - b'0')
+        n = n
+            .checked_mul(T::ten())
+            .ok_or(Error::Overflow)?
+            .checked_add(T::from(x - b'0'))
+            .ok_or(Error::Overflow)?;
     }
     Ok(n)
 }
@@ -113,6 +138,7 @@ pub enum Error {
     MissingMax,
     MissingDepth,
     MissingTupltype,
+    Overflow,
 }
 
 impl std::fmt::Display for Error {
@@ -133,6 +159,7 @@ impl std::fmt::Display for Error {
             Self::MissingMax => write!(f, "no max value"),
             Self::MissingDepth => write!(f, "no depth"),
             Self::MissingTupltype => write!(f, "no tupltype"),
+            Self::Overflow => write!(f, "overflow while parsing number"),
         }
     }
 }
@@ -141,7 +168,7 @@ impl std::error::Error for Error {}
 /// Decodes the magic number.
 pub fn magic(x: &mut &[u8]) -> Option<u8> {
     (x.by()? == b'P').then_some(())?;
-    let m = x.by().map(|x| x - b'0');
+    let m = x.by().and_then(|x| x.checked_sub(b'0'));
     while x.first()?.is_ascii_whitespace() {
         x.by();
     }
