@@ -47,7 +47,7 @@ pub mod plain {
             // SAFETY: iterator over `pixels` elements.
             unsafe { out.push(b == b'1') };
         }
-        if unsafe { out.sub_ptr(into.buf().as_mut_ptr().cast()) < pixels as usize } {
+        if unsafe { out.offset_from_unsigned(into.buf().as_mut_ptr().cast()) < pixels as usize } {
             return Err(Error::MissingData);
         }
         // SAFETY: checked that the pixels have been initialized.
@@ -69,7 +69,7 @@ pub mod plain {
             // SAFETY: iterator over `pixels` elements.
             unsafe { out.push((b == b'0') as u8 * 0xff) };
         }
-        if unsafe { out.sub_ptr(into.buf().as_mut_ptr().cast()) < pixels as usize } {
+        if unsafe { out.offset_from_unsigned(into.buf().as_mut_ptr().cast()) < pixels as usize } {
             return Err(Error::MissingData);
         }
         // SAFETY: checked that the pixels have been initialized.
@@ -94,7 +94,7 @@ pub mod plain {
             // cosmetic
             o.push(b'\n');
         }
-        o.sub_ptr(out)
+        o.offset_from_unsigned(out)
     }
 
     #[doc = include_str!("est.md")]
@@ -162,7 +162,7 @@ pub mod raw {
             })
             .for_each(|x| o.push(x));
 
-        o.sub_ptr(out)
+        o.offset_from_unsigned(out)
     }
 
     #[doc = include_str!("decode_body_into.md")]
@@ -185,7 +185,7 @@ pub mod raw {
             // SAFETY: took `width` * `height` pixels.
             unsafe { out.push(x) };
         }
-        if unsafe { out.sub_ptr(into.buf().as_mut_ptr().cast()) < pixels as usize } {
+        if unsafe { out.offset_from_unsigned(into.buf().as_mut_ptr().cast()) < pixels as usize } {
             return Err(Error::MissingData);
         }
         // SAFETY: checked that the pixels have been initialized.
@@ -216,7 +216,7 @@ pub mod raw {
             // SAFETY: took `height` * `width` pixels.
             unsafe { out.push(x) };
         }
-        if unsafe { out.sub_ptr(into.buf().as_mut_ptr().cast()) < pixels as usize } {
+        if unsafe { out.offset_from_unsigned(into.buf().as_mut_ptr().cast()) < pixels as usize } {
             return Err(Error::MissingData);
         }
         // SAFETY: checked that the pixels have been initialized.

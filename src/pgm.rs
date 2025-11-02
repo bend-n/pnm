@@ -56,7 +56,7 @@ pub mod plain {
             // SAFETY: iterator over `pixels` elements.
             unsafe { out.push(b) };
         }
-        if unsafe { out.sub_ptr(into.buf().as_mut_ptr().cast()) < pixels as usize } {
+        if unsafe { out.offset_from_unsigned(into.buf().as_mut_ptr().cast()) < pixels as usize } {
             return Err(Error::MissingData);
         }
         // SAFETY: checked that the pixels have been initialized.
@@ -79,7 +79,7 @@ pub mod plain {
             // cosmetic
             o.push(b'\n');
         }
-        o.sub_ptr(out)
+        o.offset_from_unsigned(out)
     }
 
     #[doc = include_str!("est.md")]
@@ -135,7 +135,7 @@ pub mod raw {
         encodeu32(x.height(), &mut o);
         o.put(*b" 255\n");
         o.copy_from(x.buffer().as_ptr(), x.len());
-        o.sub_ptr(out) + x.len()
+        o.offset_from_unsigned(out) + x.len()
     }
 
     #[doc = include_str!("decode_body_into.md")]
@@ -146,7 +146,7 @@ pub mod raw {
             // SAFETY: took `pixels` pixels.
             unsafe { out.push(b) };
         }
-        if unsafe { out.sub_ptr(into.buf().as_mut_ptr().cast()) < pixels as usize } {
+        if unsafe { out.offset_from_unsigned(into.buf().as_mut_ptr().cast()) < pixels as usize } {
             return Err(Error::MissingData);
         }
         // SAFETY: checked that the pixels have been initialized.

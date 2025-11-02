@@ -19,8 +19,8 @@
 //!
 //! assert_eq!(pnm::encode(out), data);
 //! ```
-#![allow(incomplete_features)]
-#![feature(ptr_sub_ptr, let_chains, iter_array_chunks)]
+#![allow(incomplete_features, unsafe_op_in_unsafe_fn)]
+#![feature(iter_array_chunks)]
 #![warn(
     clippy::missing_const_for_fn,
     clippy::suboptimal_flops,
@@ -28,7 +28,7 @@
     clippy::use_self
 )]
 
-use fimg::{uninit, DynImage, Image};
+use fimg::{DynImage, Image, uninit};
 pub mod decode;
 pub(crate) mod encode;
 pub mod pam;

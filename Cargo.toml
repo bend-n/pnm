@@ -1,7 +1,7 @@
 [package]
 name = "pnm"
-version = "0.1.0"
-edition = "2021"
+version = "0.1.1"
+edition = "2024"
 description = "portable anymap format encoding and decoding"
 authors = ["bend-n <bend.n@outlook.com>"]
 license = "MIT"

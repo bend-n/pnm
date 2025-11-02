@@ -147,10 +147,10 @@ unsafe fn encode_into<const N: usize>(
         for &x in buf {
             o.push(x ^ 1)
         }
-        o.sub_ptr(out)
+        o.offset_from_unsigned(out)
     } else {
         o.copy_from(buf.as_ptr(), buf.len());
-        o.sub_ptr(out) + buf.len()
+        o.offset_from_unsigned(out) + buf.len()
     }
 }
 
